@@ -25,7 +25,7 @@ app.post("/api/contact", async (req, res) => {
     console.log("fh6",req.body)
     return res.status(400).json({ error: "Missing required fields" });
   }
-console.log("fh1",req.body)
+console.log("fh1")
   const mailOptions = {
     
     from: `"Luxury Tech Contact" <${process.env.GMAIL_USER}>`,
@@ -33,17 +33,17 @@ console.log("fh1",req.body)
     subject: `New Inquiry from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProject Type: ${projectType}\n\nMessage:\n${message}`,
   };
-console.log("fh2",req.body)
+console.log("fh2")
   try {
-    console.log("fh8",req.body)
+    console.log("fh8")
     await transporter.sendMail(mailOptions);
     res.json({ success: true });
   } catch (error) {
-    console.log("fh9",req.body)
+    console.log("fh9")
     console.error(error);
     res.status(500).json({ success: false, error: "Failed to send email" });
   }
 });
-console.log("fh3",req.body)
+console.log("fh3")
 const PORT = process.env.PORT || 5175;
 app.listen(PORT, "0.0.0.0", () => console.log(`Server running on http://localhost:${PORT}`));
