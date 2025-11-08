@@ -5,10 +5,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS + body
+app.use(cors());                 // or restrict to your Vercel domain
 app.use(express.json());
 
-// Transporter using Gmail + App Password
+// health/root so Render doesn’t 502 on "/"
+app.get("/", (_req, res) => res.status(200).send("OK"));
+app.head("/", (_req, res) => res.status(200).end()); // optional
+
+// mailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -18,32 +24,25 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post("/api/contact", async (req, res) => {
-  console.log("fh",req.body)
-  const { name, email, phone, projectType, message } = req.body;
-  console.log("fh4",req.body)
-  if (!name || !email || !message) {
-    console.log("fh6",req.body)
+  const { name, email, phone, projectType, message } = req.body || {};
+  if (!name || !email || !message)
     return res.status(400).json({ error: "Missing required fields" });
-  }
-console.log("fh1")
-  const mailOptions = {
-    
-    from: `"Luxury Tech Contact" <${process.env.GMAIL_USER}>`,
-    to: process.env.MAIL_TO,
-    subject: `New Inquiry from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProject Type: ${projectType}\n\nMessage:\n${message}`,
-  };
-console.log("fh2")
+
   try {
-    console.log("fh8")
-    await transporter.sendMail(mailOptions);
+    await transporter.sendMail({
+      from: `"Luxury Tech Contact" <${process.env.GMAIL_USER}>`,
+      to: process.env.MAIL_TO,
+      subject: `New Inquiry from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProject Type: ${projectType}\n\nMessage:\n${message}`,
+    });
     res.json({ success: true });
-  } catch (error) {
-    console.log("fh9")
-    console.error(error);
+  } catch (err) {
+    console.error("Mailer error:", err);
     res.status(500).json({ success: false, error: "Failed to send email" });
   }
 });
-console.log("fh3")
+
 const PORT = process.env.PORT || 5175;
-app.listen(PORT, "0.0.0.0", () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Listening on 0.0.0.0:${PORT}`);
+});
