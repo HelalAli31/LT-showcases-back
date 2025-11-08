@@ -42,7 +42,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5175;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Listening on 0.0.0.0:${PORT}`);
 });
